@@ -1,8 +1,10 @@
--- LEGNA MINI PRO 😈
+-- LEGNA PREMIUM HUD 😈✨
 
 local RunService = game:GetService("RunService")
 local Stats = game:GetService("Stats")
 local Lighting = game:GetService("Lighting")
+local UIS = game:GetService("UserInputService")
+local SoundService = game:GetService("SoundService")
 
 -- 🔥 BOOST BASE
 Lighting.GlobalShadows = false
@@ -10,89 +12,151 @@ Lighting.FogEnd = 9e9
 Lighting.Brightness = 0
 settings().Rendering.QualityLevel = "Level01"
 
--- 🎯 GUI
+-- 🚀 BOOST ULTRA + SONIDO
+local function BoostUltra()
+    for _, v in pairs(game:GetDescendants()) do
+        if v:IsA("Part") or v:IsA("MeshPart") then
+            v.Material = Enum.Material.SmoothPlastic
+            v.Reflectance = 0
+        elseif v:IsA("Decal") or v:IsA("Texture") then
+            v:Destroy()
+        elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
+            v:Destroy()
+        elseif v:IsA("Fire") or v:IsA("Smoke") then
+            v:Destroy()
+        end
+    end
+
+    -- 🔊 SONIDO TURBO PREMIUM
+    local sound = Instance.new("Sound")
+    sound.SoundId = "rbxassetid://911342077"
+    sound.Volume = 1.5
+    sound.PlaybackSpeed = 1.05
+    sound.Parent = SoundService
+    sound:Play()
+
+    task.delay(3, function()
+        sound:Destroy()
+    end)
+end
+
+-- 🎯 GUI PREMIUM
 local gui = Instance.new("ScreenGui", game.CoreGui)
-gui.Name = "LEGNA_MINI"
+gui.Name = "LEGNA_PREMIUM"
 
 local frame = Instance.new("Frame", gui)
-frame.Size = UDim2.new(0, 150, 0, 28)
-frame.Position = UDim2.new(0, 10, 0.42, 0)
-frame.BackgroundColor3 = Color3.fromRGB(0,0,0)
+frame.Size = UDim2.new(0, 125, 0, 20)
+frame.Position = UDim2.new(0, 8, 0, 70)
+frame.BackgroundColor3 = Color3.fromRGB(10,10,10)
 frame.BackgroundTransparency = 0.25
 frame.BorderSizePixel = 0
 frame.Active = true
-frame.Draggable = true
 
-local corner = Instance.new("UICorner", frame)
-corner.CornerRadius = UDim.new(0, 10)
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0, 6)
 
--- texto
+-- ✨ sombra suave (detalle premium)
+local stroke = Instance.new("UIStroke", frame)
+stroke.Color = Color3.fromRGB(40,40,40)
+stroke.Thickness = 1
+stroke.Transparency = 0.6
+
+-- TEXTO
 local text = Instance.new("TextLabel", frame)
-text.Size = UDim2.new(0.8,0,1,0)
-text.Position = UDim2.new(0,5,0,0)
+text.Size = UDim2.new(0.82,0,1,0)
+text.Position = UDim2.new(0,6,0,0)
 text.BackgroundTransparency = 1
 text.TextScaled = true
-text.Font = Enum.Font.GothamBold
+text.Font = Enum.Font.GothamSemibold
 text.TextXAlignment = Enum.TextXAlignment.Left
 
--- 🔘 BOTÓN MINI ON/OFF
+-- 🔘 BOTÓN INVISIBLE PREMIUM
 local toggle = Instance.new("TextButton", frame)
-toggle.Size = UDim2.new(0.2, -5, 0.7, 0)
-toggle.Position = UDim2.new(0.8, 0, 0.15, 0)
-toggle.Text = "●"
-toggle.TextScaled = true
-toggle.BackgroundColor3 = Color3.fromRGB(0,200,0)
-toggle.TextColor3 = Color3.new(1,1,1)
-toggle.BorderSizePixel = 0
+toggle.Size = UDim2.new(0.18,0,1,0)
+toggle.Position = UDim2.new(0.82,0,0,0)
+toggle.BackgroundTransparency = 1
+toggle.Text = ""
 
-local tcorner = Instance.new("UICorner", toggle)
-tcorner.CornerRadius = UDim.new(1,0)
-
--- estado
 local enabled = true
 
 toggle.MouseButton1Click:Connect(function()
     enabled = not enabled
     text.Visible = enabled
 
-    toggle.BackgroundColor3 = enabled and Color3.fromRGB(0,200,0) or Color3.fromRGB(200,0,0)
+    if enabled then
+        BoostUltra() -- 🚀 activa boost con sonido
+    end
 end)
 
--- 🌈 RGB suave
+-- 📱 DRAG SUAVE PRO
+local dragging, dragStart, startPos
+
+frame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = frame.Position
+
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+UIS.InputChanged:Connect(function(input)
+    if dragging and input.UserInputType == Enum.UserInputType.Touch then
+        local delta = input.Position - dragStart
+        frame.Position = UDim2.new(
+            startPos.X.Scale,
+            startPos.X.Offset + delta.X,
+            startPos.Y.Scale,
+            startPos.Y.Offset + delta.Y
+        )
+    end
+end)
+
+-- 🌈 RGB SUAVE PREMIUM
 local hue = 0
 
--- FPS
-local last = tick()
+-- FPS ESTABLE
 local fps = 0
+local frames = 0
+local lastTime = tick()
 
 RunService.RenderStepped:Connect(function()
-    local now = tick()
-    fps = math.floor(1 / (now - last))
-    last = now
+    frames += 1
+
+    if tick() - lastTime >= 1 then
+        fps = frames
+        frames = 0
+        lastTime = tick()
+    end
 
     local ping = math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
 
-    -- color ping
-    local msColor = Color3.fromRGB(0,255,0)
-    if ping > 200 then
-        msColor = Color3.fromRGB(255,0,0)
+    -- color ping premium
+    local msColor = Color3.fromRGB(0,255,120)
+    if ping > 180 then
+        msColor = Color3.fromRGB(255,60,60)
     elseif ping > 100 then
-        msColor = Color3.fromRGB(255,150,0)
+        msColor = Color3.fromRGB(255,170,60)
     end
 
-    -- RGB letra L
-    hue = (hue + 0.02) % 1
+    hue = (hue + 0.008) % 1
     local rgb = Color3.fromHSV(hue,1,1)
 
     text.RichText = true
-    text.Text = "<font color='rgb("..
+    text.Text =
+        "<font color='rgb("..
         math.floor(rgb.R*255)..","..
         math.floor(rgb.G*255)..","..
-        math.floor(rgb.B*255)..")'>L</font> "..fps..
-        " | <font color='rgb("..
+        math.floor(rgb.B*255)..")'>L</font> "
+        ..fps.." FPS | <font color='rgb("..
         math.floor(msColor.R*255)..","..
         math.floor(msColor.G*255)..","..
-        math.floor(msColor.B*255)..")'>"..ping.."ms</font>"
+        math.floor(msColor.B*255)..")'>"
+        ..ping.." MS</font>"
 end)
 
-print("😈 LEGNA MINI ACTIVADO")
+print("😈 LEGNA PREMIUM ACTIVADO")
