@@ -1,132 +1,145 @@
---[[ 
-    LEGNA FPS PRO v1.0
-    by Anderson
-
-    ✔ FPS Boost
-    ✔ Crosshair Pro
-    ✔ Stabilizer
-]]
-
--- 🔥 ESPERA CARGA
-repeat task.wait() until game:IsLoaded()
+-- LEGNA OVERLAY PRO MAX 😈🔥
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Stats = game:GetService("Stats")
 local Lighting = game:GetService("Lighting")
-local UIS = game:GetService("UserInputService")
+local Terrain = workspace:FindFirstChildOfClass("Terrain")
 
-local Player = Players.LocalPlayer or Players.PlayerAdded:Wait()
+local player = Players.LocalPlayer
 
--- 💀 ANTI DUPLICADO
-if Player.PlayerGui:FindFirstChild("LEGNA_FPS_PRO") then
-	Player.PlayerGui.LEGNA_FPS_PRO:Destroy()
+-- 🔥 BOOST NORMAL
+local function BoostNormal()
+    Lighting.GlobalShadows = false
+    Lighting.FogEnd = 9e9
+    Lighting.Brightness = 0
+    settings().Rendering.QualityLevel = "Level01"
 end
 
--- 🎨 GUI
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "LEGNA_FPS_PRO"
-ScreenGui.Parent = Player:WaitForChild("PlayerGui")
-ScreenGui.ResetOnSpawn = false
+-- 🚀 BOOST ULTRA
+local function BoostUltra()
+    for _, v in pairs(game:GetDescendants()) do
+        if v:IsA("Part") or v:IsA("MeshPart") then
+            v.Material = Enum.Material.SmoothPlastic
+            v.Reflectance = 0
+        elseif v:IsA("Decal") or v:IsA("Texture") then
+            v:Destroy()
+        elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
+            v:Destroy()
+        elseif v:IsA("Explosion") then
+            v.BlastPressure = 0
+            v.BlastRadius = 0
+        elseif v:IsA("Fire") or v:IsA("Smoke") then
+            v:Destroy()
+        end
+    end
 
-local Frame = Instance.new("Frame")
-Frame.Size = UDim2.new(0, 170, 0, 60)
-Frame.Position = UDim2.new(0, 10, 0, 10)
-Frame.BackgroundColor3 = Color3.fromRGB(15,15,15)
-Frame.BackgroundTransparency = 0.2
-Frame.Parent = ScreenGui
+    if Terrain then
+        Terrain.WaterWaveSize = 0
+        Terrain.WaterWaveSpeed = 0
+        Terrain.WaterReflectance = 0
+        Terrain.WaterTransparency = 1
+    end
+end
 
-local UIStroke = Instance.new("UIStroke")
-UIStroke.Thickness = 2
-UIStroke.Parent = Frame
+BoostNormal()
 
-local FPSLabel = Instance.new("TextLabel")
-FPSLabel.Size = UDim2.new(1, 0, 0.5, 0)
-FPSLabel.BackgroundTransparency = 1
-FPSLabel.Text = "FPS: 0"
-FPSLabel.TextColor3 = Color3.new(1,1,1)
-FPSLabel.Font = Enum.Font.SourceSansBold
-FPSLabel.TextScaled = true
-FPSLabel.Parent = Frame
+-- 🎯 GUI
+local gui = Instance.new("ScreenGui", game.CoreGui)
+gui.Name = "LEGNA_PRO"
 
-local PingLabel = Instance.new("TextLabel")
-PingLabel.Position = UDim2.new(0,0,0.5,0)
-PingLabel.Size = UDim2.new(1, 0, 0.5, 0)
-PingLabel.BackgroundTransparency = 1
-PingLabel.Text = "Ping: 0"
-PingLabel.TextColor3 = Color3.new(1,1,1)
-PingLabel.Font = Enum.Font.SourceSansBold
-PingLabel.TextScaled = true
-PingLabel.Parent = Frame
+local frame = Instance.new("Frame", gui)
+frame.Size = UDim2.new(0, 180, 0, 40)
+frame.Position = UDim2.new(0, 10, 0.4, 0)
+frame.BackgroundColor3 = Color3.fromRGB(0,0,0)
+frame.BackgroundTransparency = 0.3
+frame.BorderSizePixel = 0
+frame.Active = true
+frame.Draggable = true -- 👆 mover con el dedo
 
--- 🌈 RGB
+local corner = Instance.new("UICorner", frame)
+corner.CornerRadius = UDim.new(0, 12)
+
+-- texto
+local text = Instance.new("TextLabel", frame)
+text.Size = UDim2.new(1,0,1,0)
+text.BackgroundTransparency = 1
+text.TextScaled = true
+text.Font = Enum.Font.GothamBold
+
+-- 🔘 BOTÓN ON/OFF
+local toggle = Instance.new("TextButton", gui)
+toggle.Size = UDim2.new(0, 60, 0, 25)
+toggle.Position = UDim2.new(0, 10, 0.5, 0)
+toggle.Text = "ON"
+toggle.BackgroundColor3 = Color3.fromRGB(0,170,0)
+toggle.TextColor3 = Color3.new(1,1,1)
+toggle.BorderSizePixel = 0
+
+local tcorner = Instance.new("UICorner", toggle)
+tcorner.CornerRadius = UDim.new(0, 8)
+
+-- 🚀 BOTÓN ULTRA
+local ultraBtn = Instance.new("TextButton", gui)
+ultraBtn.Size = UDim2.new(0, 60, 0, 25)
+ultraBtn.Position = UDim2.new(0, 80, 0.5, 0)
+ultraBtn.Text = "ULTRA"
+ultraBtn.BackgroundColor3 = Color3.fromRGB(170,0,0)
+ultraBtn.TextColor3 = Color3.new(1,1,1)
+ultraBtn.BorderSizePixel = 0
+
+local ucorner = Instance.new("UICorner", ultraBtn)
+ucorner.CornerRadius = UDim.new(0, 8)
+
+-- estado
+local enabled = true
+
+toggle.MouseButton1Click:Connect(function()
+    enabled = not enabled
+    frame.Visible = enabled
+    toggle.Text = enabled and "ON" or "OFF"
+    toggle.BackgroundColor3 = enabled and Color3.fromRGB(0,170,0) or Color3.fromRGB(170,0,0)
+end)
+
+ultraBtn.MouseButton1Click:Connect(function()
+    BoostUltra()
+end)
+
+-- 🌈 RGB rápido
 local hue = 0
-RunService.RenderStepped:Connect(function()
-	hue = (hue + 0.005) % 1
-	UIStroke.Color = Color3.fromHSV(hue,1,1)
-end)
 
--- 📊 FPS
-RunService.RenderStepped:Connect(function(dt)
-	local fps = math.floor(1/dt)
-	FPSLabel.Text = "FPS: "..fps
-end)
-
--- 📶 PING
-RunService.RenderStepped:Connect(function()
-	local ping = math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
-	PingLabel.Text = "Ping: "..ping
-
-	if ping >= 200 and ping <= 600 then
-		PingLabel.TextColor3 = Color3.fromRGB(255,165,0)
-	elseif ping > 600 then
-		PingLabel.TextColor3 = Color3.fromRGB(255,0,0)
-	else
-		PingLabel.TextColor3 = Color3.fromRGB(255,255,255)
-	end
-end)
-
--- ⚡ BOOST FPS
-Lighting.GlobalShadows = false
-Lighting.FogEnd = 9e9
-settings().Rendering.QualityLevel = "Level01"
-
-for _,v in pairs(workspace:GetDescendants()) do
-	if v:IsA("BasePart") then
-		v.Material = Enum.Material.Plastic
-		v.Reflectance = 0
-	elseif v:IsA("Decal") or v:IsA("Texture") then
-		v:Destroy()
-	end
-end
-
--- 🎯 OCULTAR CURSOR
-pcall(function()
-	UIS.MouseIconEnabled = false
-end)
-
--- 🎯 CROSSHAIR PRO (AJUSTA 0.47 SI LO QUIERES MÁS ARRIBA/ABAJO)
-local Dot = Instance.new("Frame")
-Dot.Size = UDim2.new(0,2,0,2)
-Dot.AnchorPoint = Vector2.new(0.5, 0.5)
-Dot.Position = UDim2.new(0.5, 0, 0.47, 0)
-Dot.BackgroundColor3 = Color3.fromRGB(255,255,255)
-Dot.BorderSizePixel = 0
-Dot.Parent = ScreenGui
-
-local Corner = Instance.new("UICorner")
-Corner.CornerRadius = UDim.new(1,0)
-Corner.Parent = Dot
-
--- 🎥 ESTABILIZADOR PRO
-local camera = workspace.CurrentCamera
-local smoothness = 0.15
-
-local lastCF = camera.CFrame
+-- 📊 FPS + PING
+local fps = 0
+local last = tick()
 
 RunService.RenderStepped:Connect(function()
-	if camera then
-		lastCF = lastCF:Lerp(camera.CFrame, smoothness)
-		camera.CFrame = lastCF
-	end
+    local now = tick()
+    fps = math.floor(1 / (now - last))
+    last = now
+
+    local ping = math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue())
+
+    -- colores ping
+    local msColor = Color3.fromRGB(0,255,0)
+    if ping > 200 then
+        msColor = Color3.fromRGB(255,0,0)
+    elseif ping > 100 then
+        msColor = Color3.fromRGB(255,150,0)
+    end
+
+    -- RGB rápido ⚡
+    hue = (hue + 0.03) % 1
+    local Lcolor = Color3.fromHSV(hue,1,1)
+
+    text.RichText = true
+    text.Text = "<font color='rgb("..
+        math.floor(Lcolor.R*255)..","..
+        math.floor(Lcolor.G*255)..","..
+        math.floor(Lcolor.B*255)..")'>L</font> "..fps..
+        " FPS | <font color='rgb("..
+        math.floor(msColor.R*255)..","..
+        math.floor(msColor.G*255)..","..
+        math.floor(msColor.B*255)..")'>"..ping.." MS</font>"
 end)
+
+print("😈 LEGNA PRO MAX ACTIVADO")
