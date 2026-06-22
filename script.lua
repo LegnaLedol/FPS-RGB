@@ -5,6 +5,7 @@ local Stats = game:GetService("Stats")
 local Lighting = game:GetService("Lighting")
 local UIS = game:GetService("UserInputService")
 local SoundService = game:GetService("SoundService")
+local TweenService = game:GetService("TweenService")
 
 -- 🔥 BOOST BASE
 Lighting.GlobalShadows = false
@@ -15,70 +16,145 @@ pcall(function()
     settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
 end)
 
--- 🌌 GALAXY LOADING SCREEN (CINEMATIC PRO)
+-- 🌌 CINEMATIC GALAXY LOADING PRO MAX
 local function ShowLoadingScreen()
+
     local gui = Instance.new("ScreenGui")
     gui.Name = "LEGNA_LOADING"
     gui.IgnoreGuiInset = true
     gui.ResetOnSpawn = false
     gui.Parent = game.CoreGui
 
+    -- 🌑 fondo
     local frame = Instance.new("Frame")
     frame.Size = UDim2.new(1,0,1,0)
     frame.BackgroundColor3 = Color3.fromRGB(5, 0, 15)
+    frame.BackgroundTransparency = 1
     frame.BorderSizePixel = 0
     frame.Parent = gui
 
+    TweenService:Create(frame, TweenInfo.new(0.5), {
+        BackgroundTransparency = 0
+    }):Play()
+
+    -- 🌌 gradient galaxia
     local gradient = Instance.new("UIGradient")
     gradient.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(10, 0, 30)),
-        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 15, 40)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(40, 0, 60))
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(20, 0, 40)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 10, 70)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(60, 0, 90))
     }
     gradient.Rotation = 0
     gradient.Parent = frame
 
+    -- ✨ título
     local text = Instance.new("TextLabel")
-    text.Size = UDim2.new(1,0,0,80)
-    text.Position = UDim2.new(0,0,0.45,0)
+    text.Size = UDim2.new(1,0,0,100)
+    text.Position = UDim2.new(0,0,0.40,0)
     text.BackgroundTransparency = 1
-    text.Text = "INITIALIZING LEGNA BOOST"
+    text.Text = "LEGNA BOOST INITIALIZING"
     text.TextColor3 = Color3.fromRGB(255,255,255)
     text.Font = Enum.Font.GothamBold
     text.TextScaled = true
+    text.TextTransparency = 1
     text.Parent = frame
 
-    local stroke = Instance.new("UIStroke")
-    stroke.Color = Color3.fromRGB(140, 90, 255)
-    stroke.Thickness = 1.5
-    stroke.Transparency = 0.35
-    stroke.Parent = text
+    TweenService:Create(text, TweenInfo.new(0.5), {
+        TextTransparency = 0
+    }):Play()
 
-    -- 🌌 animación suave galaxia
+    -- 🌠 subtexto
+    local sub = Instance.new("TextLabel")
+    sub.Size = UDim2.new(1,0,0,40)
+    sub.Position = UDim2.new(0,0,0.52,0)
+    sub.BackgroundTransparency = 1
+    sub.Text = "calibrating visual system..."
+    sub.TextColor3 = Color3.fromRGB(180,180,180)
+    sub.Font = Enum.Font.Gotham
+    sub.TextScaled = true
+    sub.TextTransparency = 1
+    sub.Parent = frame
+
+    TweenService:Create(sub, TweenInfo.new(0.5), {
+        TextTransparency = 0
+    }):Play()
+
+    -- 📊 BARRA DE PROGRESO
+    local barBG = Instance.new("Frame")
+    barBG.Size = UDim2.new(0.3,0,0,6)
+    barBG.Position = UDim2.new(0.35,0,0.62,0)
+    barBG.BackgroundColor3 = Color3.fromRGB(30,30,30)
+    barBG.BorderSizePixel = 0
+    barBG.Parent = frame
+
+    local barFill = Instance.new("Frame")
+    barFill.Size = UDim2.new(0,0,1,0)
+    barFill.BackgroundColor3 = Color3.fromRGB(170,120,255)
+    barFill.BorderSizePixel = 0
+    barFill.Parent = barBG
+
+    -- 🌌 animación galaxia
+    local running = true
     task.spawn(function()
-        while gui.Parent do
-            gradient.Rotation += 0.4
-            task.wait(0.03)
+        while running do
+            gradient.Rotation += 0.6
+            task.wait(0.02)
         end
     end)
 
-    -- ✨ sonido sci-fi
+    -- ✨ progreso simulado (suave)
+    task.spawn(function()
+        for i = 1, 100 do
+            TweenService:Create(barFill, TweenInfo.new(0.02), {
+                Size = UDim2.new(i/100,0,1,0)
+            }):Play()
+            task.wait(0.02)
+        end
+    end)
+
+    -- 🔊 sonido inicio
     local sound = Instance.new("Sound")
     sound.SoundId = "rbxassetid://911342077"
     sound.Volume = 1
-    sound.PlaybackSpeed = 1.05
     sound.Parent = SoundService
     sound:Play()
 
-    task.delay(2, function()
-        sound:Destroy()
+    -- 💀 cierre cinematográfico
+    task.spawn(function()
+        task.wait(2.2)
+
+        running = false
+
+        TweenService:Create(frame, TweenInfo.new(0.5), {
+            BackgroundTransparency = 1
+        }):Play()
+
+        TweenService:Create(text, TweenInfo.new(0.3), {
+            TextTransparency = 1
+        }):Play()
+
+        TweenService:Create(sub, TweenInfo.new(0.3), {
+            TextTransparency = 1
+        }):Play()
+
+        TweenService:Create(barBG, TweenInfo.new(0.3), {
+            BackgroundTransparency = 1
+        }):Play()
+
+        TweenService:Create(barFill, TweenInfo.new(0.3), {
+            BackgroundTransparency = 1
+        }):Play()
+
+        task.wait(0.6)
+        gui:Destroy()
     end)
 
     return gui
 end
 
--- 🚀 BOOST ULTRA COMPETITIVO (CLEAN + VISIBILIDAD)
+-- 🚀 BOOST ULTRA COMPETITIVO (CLEAN)
 local function BoostUltra()
+
     local loading = ShowLoadingScreen()
 
     local desc = game:GetDescendants()
@@ -112,15 +188,14 @@ local function BoostUltra()
         end
     end
 
-    -- 🌍 LIGHTING COMPETITIVO
     Lighting.GlobalShadows = false
     Lighting.FogEnd = 1e9
     Lighting.Brightness = 1.1
     Lighting.EnvironmentDiffuseScale = 0
     Lighting.EnvironmentSpecularScale = 0
 
-    task.wait(0.5)
-    loading:Destroy()
+    task.wait(0.3)
+    if loading then loading:Destroy() end
 end
 
 -- 🎯 GUI
@@ -199,7 +274,7 @@ UIS.InputChanged:Connect(function(input)
     end
 end)
 
--- 🌈 FPS + PING HUD
+-- 🌈 FPS + PING
 local hue = 0
 local fps = 0
 local frames = 0
