@@ -1,64 +1,55 @@
--- LEGNA PREMIUM HUD 😈✨
-
-local RunService = game:GetService("RunService")
-local Stats = game:GetService("Stats")
 local Lighting = game:GetService("Lighting")
-local UIS = game:GetService("UserInputService")
-local SoundService = game:GetService("SoundService")
-local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
 
 ------------------------------------------------
--- ⚡ BOOST BASE INICIAL
+-- 🌌 LIMPIEZA SOLO VISUAL
 ------------------------------------------------
-Lighting.GlobalShadows = false
-Lighting.FogEnd = 9e9
-Lighting.Brightness = 0
-
-pcall(function()
-    settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
-end)
-
-------------------------------------------------
--- 🌌 GALAXIA V2 ULTRA (SHADER VIVO)
-------------------------------------------------
-local function CreateGalaxyV2Ultra()
-
+local function ClearSky()
     for _, v in ipairs(Lighting:GetChildren()) do
         if v:IsA("Sky") or v:IsA("Atmosphere") or v:IsA("BloomEffect") or v:IsA("ColorCorrectionEffect") then
             v:Destroy()
         end
     end
+end
+
+------------------------------------------------
+-- 🌌 SHADER ARTE (BASE CINEMÁTICA)
+------------------------------------------------
+local function CreateArtShaders()
 
     local atm = Instance.new("Atmosphere")
-    atm.Density = 0.42
-    atm.Offset = 0.15
-    atm.Color = Color3.fromRGB(120,170,255)
-    atm.Decay = Color3.fromRGB(35,45,90)
+    atm.Density = 0.38
+    atm.Offset = 0.1
+    atm.Color = Color3.fromRGB(130, 170, 255)
+    atm.Decay = Color3.fromRGB(25, 35, 80)
     atm.Glare = 0.25
-    atm.Haze = 2
+    atm.Haze = 2.5
     atm.Parent = Lighting
 
-    local cc = Instance.new("ColorCorrectionEffect")
-    cc.Saturation = 0.4
-    cc.Contrast = 0.25
-    cc.Brightness = 0.05
-    cc.TintColor = Color3.fromRGB(190,210,255)
-    cc.Parent = Lighting
-
     local bloom = Instance.new("BloomEffect")
-    bloom.Intensity = 1.2
-    bloom.Size = 60
-    bloom.Threshold = 0.85
+    bloom.Intensity = 1.6
+    bloom.Size = 70
+    bloom.Threshold = 0.8
     bloom.Parent = Lighting
 
+    local cc = Instance.new("ColorCorrectionEffect")
+    cc.Contrast = 0.3
+    cc.Saturation = 0.45
+    cc.Brightness = 0.05
+    cc.TintColor = Color3.fromRGB(210, 225, 255)
+    cc.Parent = Lighting
+
     local sky = Instance.new("Sky")
-    sky.SkyboxBk = "rbxassetid://159454299"
-    sky.SkyboxDn = "rbxassetid://159454299"
-    sky.SkyboxFt = "rbxassetid://159454299"
-    sky.SkyboxLf = "rbxassetid://159454299"
-    sky.SkyboxRt = "rbxassetid://159454299"
-    sky.SkyboxUp = "rbxassetid://159454299"
-    sky.StarCount = 8000
+
+    -- 🌌 SKYBOX GALAXIA MÁS PROFUNDO (clave del arte)
+    sky.SkyboxBk = "rbxassetid://6778646360"
+    sky.SkyboxDn = "rbxassetid://6778646360"
+    sky.SkyboxFt = "rbxassetid://6778646360"
+    sky.SkyboxLf = "rbxassetid://6778646360"
+    sky.SkyboxRt = "rbxassetid://6778646360"
+    sky.SkyboxUp = "rbxassetid://6778646360"
+
+    sky.StarCount = 10000
     sky.Parent = Lighting
 
     local t = 0
@@ -66,218 +57,143 @@ local function CreateGalaxyV2Ultra()
     RunService.RenderStepped:Connect(function(dt)
         t += dt
 
-        Lighting.ClockTime = 14 + math.sin(t * 0.015) * 0.8
+        -- 🌙 tiempo cósmico lento
+        Lighting.ClockTime = 14 + math.sin(t * 0.02) * 1.2
 
-        local pulse = (math.sin(t * 0.7) + 1) / 2
+        -- 🌊 respiración artística
+        local pulse = (math.sin(t * 0.5) + 1) / 2
 
-        atm.Density = 0.38 + pulse * 0.08
-        atm.Glare = 0.2 + pulse * 0.25
+        atm.Density = 0.35 + pulse * 0.08
+        atm.Glare = 0.2 + pulse * 0.3
 
-        cc.Contrast = 0.2 + pulse * 0.15
-        cc.Saturation = 0.35 + pulse * 0.15
-
-        bloom.Intensity = 1 + pulse * 0.5
+        bloom.Intensity = 1.3 + pulse * 0.6
+        cc.Contrast = 0.25 + pulse * 0.2
+        cc.Saturation = 0.35 + pulse * 0.25
     end)
 end
 
 ------------------------------------------------
--- 🌠 ESTRELLAS VIVAS
+-- 🌠 GALAXIA EN MOVIMIENTO REAL (ARTE)
 ------------------------------------------------
-local function CreateStarField()
+local function CreateGalaxyArt()
+
+    local center = Instance.new("Part")
+    center.Anchored = true
+    center.Transparency = 1
+    center.Position = Vector3.new(0, 250, 0)
+    center.Parent = workspace
 
     local stars = {}
 
-    for i = 1, 80 do
-        local part = Instance.new("Part")
-        part.Anchored = true
-        part.CanCollide = false
-        part.Transparency = 1
-        part.Size = Vector3.new(1,1,1)
-        part.Position = Vector3.new(
-            math.random(-1000,1000),
-            math.random(200,600),
-            math.random(-1000,1000)
-        )
-        part.Parent = workspace
+    for i = 1, 60 do
+        local p = Instance.new("Part")
+        p.Anchored = true
+        p.Shape = Enum.PartType.Ball
+        p.Material = Enum.Material.Neon
+        p.Color = Color3.fromRGB(180, 220, 255)
+        p.Size = Vector3.new(2,2,2)
+        p.Parent = workspace
 
-        local light = Instance.new("PointLight")
-        light.Range = 20
-        light.Brightness = math.random(1,3)
-        light.Color = Color3.fromRGB(200,220,255)
-        light.Parent = part
-
-        table.insert(stars, light)
+        table.insert(stars, {
+            part = p,
+            angle = math.random() * math.pi * 2,
+            radius = math.random(120, 300),
+            speed = math.random(5, 20) / 1000
+        })
     end
 
     RunService.RenderStepped:Connect(function()
         local t = tick()
 
         for _, s in ipairs(stars) do
-            s.Brightness = 1 + math.sin(t) * 0.8
+            s.angle += s.speed
+
+            local x = math.cos(s.angle) * s.radius
+            local z = math.sin(s.angle) * s.radius
+            local y = math.sin(t * 0.5 + s.angle) * 30
+
+            s.part.Position = center.Position + Vector3.new(x, y, z)
+
+            -- ✨ brillo vivo
+            local glow = (math.sin(t + s.angle) + 1) / 2
+            s.part.Color = Color3.fromRGB(
+                120 + glow * 100,
+                170 + glow * 80,
+                255
+            )
         end
     end)
 end
 
 ------------------------------------------------
--- 🌀 PROFUNDIDAD GALÁCTICA
+-- 🌈 AURORA SUAVE (NO RUIDO, SOLO ARTE)
 ------------------------------------------------
-local function GalaxyDepthMotion()
+local function CreateAuroraArt()
+
+    local p = Instance.new("Part")
+    p.Anchored = true
+    p.Transparency = 1
+    p.Size = Vector3.new(2000,1,2000)
+    p.Position = Vector3.new(0,300,0)
+    p.Parent = workspace
+
+    local a0 = Instance.new("Attachment", p)
+    local a1 = Instance.new("Attachment", p)
+
+    local beam = Instance.new("Beam")
+    beam.Attachment0 = a0
+    beam.Attachment1 = a1
+    beam.Width0 = 160
+    beam.Width1 = 200
+    beam.FaceCamera = true
+    beam.LightEmission = 1
+    beam.Parent = p
+
+    beam.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(0,255,210)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(160,0,255)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(0,140,255))
+    }
 
     RunService.RenderStepped:Connect(function()
         local t = tick()
 
-        workspace.CurrentCamera.CFrame =
-            workspace.CurrentCamera.CFrame *
-            CFrame.Angles(
-                math.sin(t * 0.01) * 0.0005,
-                math.sin(t * 0.015) * 0.0008,
-                0
-            )
+        beam.CurveSize0 = math.sin(t * 0.6) * 100
+        beam.CurveSize1 = math.cos(t * 0.6) * 100
+
+        beam.LightEmission = 0.8 + math.sin(t * 1.2) * 0.2
     end)
 end
 
 ------------------------------------------------
--- 🚀 BOOST ULTRA LOW
+-- 🕳️ AGUJERO NEGRO (ARTE VISUAL)
 ------------------------------------------------
-local function BoostUltra()
+local function CreateBlackHoleArt()
 
-    pcall(function()
-        settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+    local core = Instance.new("Part")
+    core.Anchored = true
+    core.Shape = Enum.PartType.Ball
+    core.Material = Enum.Material.Neon
+    core.Color = Color3.fromRGB(0,0,0)
+    core.Size = Vector3.new(70,70,70)
+    core.Position = Vector3.new(0,260,-300)
+    core.Parent = workspace
+
+    RunService.RenderStepped:Connect(function()
+        local t = tick()
+
+        core.CFrame = core.CFrame * CFrame.Angles(0,0.008,0)
+
+        local pulse = math.sin(t * 2) * 8
+        core.Size = Vector3.new(70 + pulse, 70 + pulse, 70 + pulse)
     end)
-
-    Lighting.GlobalShadows = false
-    Lighting.FogEnd = 1e10
-    Lighting.Brightness = 1
-    Lighting.EnvironmentDiffuseScale = 0
-    Lighting.EnvironmentSpecularScale = 0
-
-    for _, v in ipairs(game:GetDescendants()) do
-        if v:IsA("ParticleEmitter") then
-            v.Enabled = false
-        elseif v:IsA("Trail") then
-            v.Enabled = false
-        elseif v:IsA("Smoke") or v:IsA("Fire") then
-            v.Enabled = false
-        elseif v:IsA("PostEffect") then
-            v.Enabled = false
-        elseif v:IsA("Decal") or v:IsA("Texture") then
-            v.Transparency = 1
-        end
-        task.wait()
-    end
 end
 
 ------------------------------------------------
--- 🎯 HUD FPS (NO MODIFICADO)
+-- 🚀 INIT FINAL
 ------------------------------------------------
-local gui = Instance.new("ScreenGui", game.CoreGui)
-gui.Name = "LEGNA_PREMIUM"
-
-local frame = Instance.new("Frame", gui)
-frame.Size = UDim2.new(0,125,0,20)
-frame.Position = UDim2.new(0,8,0,70)
-frame.BackgroundTransparency = 0.25
-frame.BackgroundColor3 = Color3.fromRGB(10,10,10)
-frame.BorderSizePixel = 0
-
-Instance.new("UICorner", frame).CornerRadius = UDim.new(0,6)
-
-local text = Instance.new("TextLabel", frame)
-text.Size = UDim2.new(0.82,0,1,0)
-text.Position = UDim2.new(0,6,0,0)
-text.BackgroundTransparency = 1
-text.TextScaled = true
-text.Font = Enum.Font.GothamSemibold
-text.TextXAlignment = Enum.TextXAlignment.Left
-
-local toggle = Instance.new("TextButton", frame)
-toggle.Size = UDim2.new(0.18,0,1,0)
-toggle.Position = UDim2.new(0.82,0,0,0)
-toggle.BackgroundTransparency = 1
-toggle.Text = ""
-
-local enabled = true
-
-toggle.MouseButton1Click:Connect(function()
-    enabled = not enabled
-    text.Visible = enabled
-    if enabled then BoostUltra() end
-end)
-
-------------------------------------------------
--- 📱 DRAG
-------------------------------------------------
-local dragging, dragInput, dragStart, startPos
-
-frame.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.Touch then
-        dragging = true
-        dragStart = input.Position
-        startPos = frame.Position
-        dragInput = input
-    end
-end)
-
-UIS.InputChanged:Connect(function(input)
-    if input == dragInput and dragging then
-        local delta = input.Position - dragStart
-        frame.Position = UDim2.new(
-            startPos.X.Scale,
-            startPos.X.Offset + delta.X,
-            startPos.Y.Scale,
-            startPos.Y.Offset + delta.Y
-        )
-    end
-end)
-
-------------------------------------------------
--- 🌈 FPS COUNTER (EXACTO ORIGINAL)
-------------------------------------------------
-local hue = 0
-local fps = 0
-local frames = 0
-local lastTime = tick()
-
-RunService.RenderStepped:Connect(function()
-frames += 1
-
-if tick() - lastTime >= 1 then  
-    fps = frames  
-    frames = 0  
-    lastTime = tick()  
-end  
-
-local ping = math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue())  
-
-local msColor = Color3.fromRGB(0,255,120)  
-if ping > 180 then  
-    msColor = Color3.fromRGB(255,60,60)  
-elseif ping > 100 then  
-    msColor = Color3.fromRGB(255,170,60)  
-end  
-
-hue = (hue + 0.008) % 1  
-local rgb = Color3.fromHSV(hue,1,1)  
-
-text.RichText = true  
-text.Text =
-    "<font color='rgb("..
-    math.floor(rgb.R*255)..","..
-    math.floor(rgb.G*255)..","..
-    math.floor(rgb.B*255)..")'>L</font> "..
-    "<font color='rgb(255,255,255)'>"..fps.." FPS</font> | "..
-    "<font color='rgb("..
-    math.floor(msColor.R*255)..","..
-    math.floor(msColor.G*255)..","..
-    math.floor(msColor.B*255)..")'>"..
-    ping.." MS</font>"
-end)
-
-------------------------------------------------
--- 🚀 INIT
-------------------------------------------------
-CreateGalaxyV2Ultra()
-CreateStarField()
-GalaxyDepthMotion()
-
-print("😈 LEGNA GALAXIA V2 ULTRA ACTIVADA")
+ClearSky()
+CreateArtShaders()
+CreateGalaxyArt()
+CreateAuroraArt()
+CreateBlackHoleArt()
