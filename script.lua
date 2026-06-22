@@ -1,108 +1,79 @@
+-- 🌅 LEGNA CELESTIAL SKY V4 🌅
+
 local Lighting = game:GetService("Lighting")
-local Workspace = game:GetService("Workspace")
-local RunService = game:GetService("RunService")
+local Terrain = workspace:FindFirstChildOfClass("Terrain")
 
 -- LIMPIAR
 for _, v in pairs(Lighting:GetChildren()) do
-    if v:IsA("Atmosphere")
-    or v:IsA("BloomEffect")
-    or v:IsA("ColorCorrectionEffect")
-    or v:IsA("SunRaysEffect")
-    or v:IsA("Sky") then
-        v:Destroy()
-    end
+	if v:IsA("PostEffect") or v:IsA("Sky") or v:IsA("Atmosphere") then
+		v:Destroy()
+	end
 end
 
--- 🌅 ILUMINACIÓN REALISTA
-Lighting.ClockTime = 18.2
-Lighting.Brightness = 1.7
-Lighting.GlobalShadows = true
+-- ☀️ BASE PERFECTA (equilibrio real + fantasía)
+Lighting.ClockTime = 18.6
+Lighting.Brightness = 2.8
+Lighting.ExposureCompensation = 0.25
+Lighting.Ambient = Color3.fromRGB(100, 85, 120)
+Lighting.OutdoorAmbient = Color3.fromRGB(150, 130, 170)
 
-Lighting.Ambient = Color3.fromRGB(80, 75, 70)
-Lighting.OutdoorAmbient = Color3.fromRGB(120, 100, 90)
+-- 🌌 SKYBOX SUAVE Y PROFUNDO (NO QUEMA)
+local sky = Instance.new("Sky")
+sky.SkyboxBk = "rbxassetid://159454299"
+sky.SkyboxDn = "rbxassetid://159454296"
+sky.SkyboxFt = "rbxassetid://159454293"
+sky.SkyboxLf = "rbxassetid://159454286"
+sky.SkyboxRt = "rbxassetid://159454300"
+sky.SkyboxUp = "rbxassetid://159454288"
+sky.Parent = Lighting
 
--- 🌫 ATMOSPHERE PRO
-local atm = Instance.new("Atmosphere")
-atm.Density = 0.5
-atm.Offset = 0
-atm.Color = Color3.fromRGB(255, 185, 140)
-atm.Decay = Color3.fromRGB(110, 85, 75)
-atm.Glare = 0.4
-atm.Haze = 2.5
-atm.Parent = Lighting
+-- ☁️ NUBES REALISTAS + CELESTIALES
+local clouds = Instance.new("Clouds")
+clouds.Cover = 0.55 -- menos saturado = más real
+clouds.Density = 0.9
+clouds.Color = Color3.fromRGB(255, 200, 170)
+clouds.Parent = workspace.Terrain
 
--- ☀️ RAYOS DIVINOS
-local sun = Instance.new("SunRaysEffect")
-sun.Intensity = 0.15
-sun.Spread = 1
-sun.Parent = Lighting
+-- 🌫️ ATMÓSFERA TIPO VIDEO (clave)
+local atmosphere = Instance.new("Atmosphere")
+atmosphere.Density = 0.4
+atmosphere.Offset = 0.15
+atmosphere.Color = Color3.fromRGB(255, 160, 120)
+atmosphere.Decay = Color3.fromRGB(90, 70, 160)
+atmosphere.Glare = 0.45 -- brillo controlado
+atmosphere.Haze = 1.8
+atmosphere.Parent = Lighting
 
--- ✨ BLOOM SUAVE
+-- ✨ BLOOM FINO (no exagerado)
 local bloom = Instance.new("BloomEffect")
-bloom.Intensity = 0.1
-bloom.Size = 45
-bloom.Threshold = 1.4
+bloom.Intensity = 0.35
+bloom.Size = 50
+bloom.Threshold = 0.95
 bloom.Parent = Lighting
 
--- 🎨 COLOR CINEMÁTICO
-local cc = Instance.new("ColorCorrectionEffect")
-cc.Brightness = 0.02
-cc.Contrast = 0.45
-cc.Saturation = 0.2
-cc.TintColor = Color3.fromRGB(255, 210, 180)
-cc.Parent = Lighting
+-- 🌈 COLOR GRADING PRO (ESTO ES LO QUE DA EL LOOK)
+local color = Instance.new("ColorCorrectionEffect")
+color.Brightness = 0.08
+color.Contrast = 0.25
+color.Saturation = 0.2
+color.TintColor = Color3.fromRGB(255, 185, 160)
+color.Parent = Lighting
 
--- ☁️ NUBES GRANDES (FORMA REAL)
-local clouds = {}
+-- 🌤️ RAYOS DE SOL NATURALES (tipo video)
+local sun = Instance.new("SunRaysEffect")
+sun.Intensity = 0.22
+sun.Spread = 0.6
+sun.Parent = Lighting
 
-local function crearMegaNube(pos)
-    local grupo = {}
+-- 💫 MICRO GLOW (EFECTO EDIT LIMPIO)
+local blur = Instance.new("BlurEffect")
+blur.Size = 1.5
+blur.Parent = Lighting
 
-    for i = 1, math.random(18,25) do
-        local nube = Instance.new("Part")
-        nube.Anchored = true
-        nube.CanCollide = false
-        nube.Material = Enum.Material.SmoothPlastic
-        nube.Color = Color3.fromRGB(255,255,255)
-
-        -- transparencia variable (CLAVE)
-        nube.Transparency = math.random(30,60)/100
-
-        local size = math.random(40,90)
-        nube.Size = Vector3.new(size, size * 0.6, size)
-
-        -- distribución tipo nube real
-        nube.Position = pos + Vector3.new(
-            math.random(-80,80),
-            math.random(-20,20),
-            math.random(-80,80)
-        )
-
-        nube.Parent = Workspace
-
-        local mesh = Instance.new("SpecialMesh", nube)
-        mesh.MeshType = Enum.MeshType.Sphere
-
-        table.insert(grupo, nube)
-    end
-
-    table.insert(clouds, grupo)
+-- 🌊 REFLEJO BONITO (NO ESPEJO EXAGERADO)
+if Terrain then
+	Terrain.WaterReflectance = 0.45
+	Terrain.WaterTransparency = 0.35
+	Terrain.WaterWaveSize = 0.15
+	Terrain.WaterWaveSpeed = 8
 end
-
--- GENERAR NUBES GRANDES
-for i = 1, 10 do
-    crearMegaNube(Vector3.new(
-        math.random(-800,800),
-        math.random(180,260),
-        math.random(-800,800)
-    ))
-end
-
--- 🌬 MOVIMIENTO SUAVE
-RunService.RenderStepped:Connect(function(dt)
-    for _, grupo in pairs(clouds) do
-        for _, nube in pairs(grupo) do
-            nube.Position += Vector3.new(0.15 * dt * 60, 0, 0.08 * dt * 60)
-        end
-    end
-end)
