@@ -8,7 +8,7 @@ local SoundService = game:GetService("SoundService")
 local TweenService = game:GetService("TweenService")
 
 ------------------------------------------------
--- ⚡ BOOST BASE (inicio suave)
+-- ⚡ BOOST BASE
 ------------------------------------------------
 Lighting.GlobalShadows = false
 Lighting.FogEnd = 9e9
@@ -19,43 +19,46 @@ pcall(function()
 end)
 
 ------------------------------------------------
--- 🌌 SKY PREMIUM (AURORA + GALAXIA + ATMOSPHERE)
+-- 🌌 SHADERS BASE (POST PROCESO)
 ------------------------------------------------
-local function CreateSky()
+local function CreateShaders()
 
     local atm = Instance.new("Atmosphere")
-    atm.Density = 0.35
-    atm.Color = Color3.fromRGB(120,180,255)
-    atm.Decay = Color3.fromRGB(60,60,120)
-    atm.Glare = 0.6
-    atm.Haze = 1
+    atm.Density = 0.4
+    atm.Offset = 0.2
+    atm.Color = Color3.fromRGB(140,180,255)
+    atm.Decay = Color3.fromRGB(40,60,120)
+    atm.Glare = 0.5
+    atm.Haze = 2
     atm.Parent = Lighting
 
     local cc = Instance.new("ColorCorrectionEffect")
     cc.Contrast = 0.25
     cc.Saturation = 0.4
-    cc.TintColor = Color3.fromRGB(180,200,255)
+    cc.Brightness = 0.05
+    cc.TintColor = Color3.fromRGB(180,210,255)
     cc.Parent = Lighting
 
     local bloom = Instance.new("BloomEffect")
-    bloom.Intensity = 1.2
+    bloom.Intensity = 1.4
     bloom.Size = 56
-    bloom.Threshold = 0.8
+    bloom.Threshold = 0.85
     bloom.Parent = Lighting
 
-    local sky = Instance.new("Sky")
-    sky.SkyboxBk = "rbxassetid://159454299"
-    sky.SkyboxDn = "rbxassetid://159454299"
-    sky.SkyboxFt = "rbxassetid://159454299"
-    sky.SkyboxLf = "rbxassetid://159454299"
-    sky.SkyboxRt = "rbxassetid://159454299"
-    sky.SkyboxUp = "rbxassetid://159454299"
-    sky.StarCount = 5000
-    sky.Parent = Lighting
+    RunService.RenderStepped:Connect(function()
+        local t = tick()
+        atm.Color = Color3.fromRGB(
+            120 + math.sin(t*0.2)*40,
+            170 + math.sin(t*0.3)*30,
+            255
+        )
+        cc.Contrast = 0.2 + math.sin(t*0.5)*0.1
+        bloom.Intensity = 1.2 + math.sin(t*0.7)*0.2
+    end)
 end
 
 ------------------------------------------------
--- 🌈 AURORA BOREAL
+-- 🌈 AURORA MOVIMIENTO
 ------------------------------------------------
 local function CreateAurora()
 
@@ -63,38 +66,40 @@ local function CreateAurora()
     part.Anchored = true
     part.CanCollide = false
     part.Transparency = 1
-    part.Size = Vector3.new(1000,1,1000)
+    part.Size = Vector3.new(2000,1,2000)
     part.Position = Vector3.new(0,300,0)
     part.Parent = workspace
 
-    local beam = Instance.new("Beam")
     local a0 = Instance.new("Attachment", part)
     local a1 = Instance.new("Attachment", part)
 
-    a0.Position = Vector3.new(-500,0,0)
-    a1.Position = Vector3.new(500,0,0)
-
+    local beam = Instance.new("Beam")
     beam.Attachment0 = a0
     beam.Attachment1 = a1
-    beam.Width0 = 80
-    beam.Width1 = 120
+    beam.Width0 = 120
+    beam.Width1 = 160
     beam.LightEmission = 1
+    beam.FaceCamera = true
+
     beam.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(0,255,180)),
-        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(120,0,255)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(0,150,255))
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(0,255,200)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(160,0,255)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(0,140,255))
     }
+
     beam.Transparency = NumberSequence.new(0.3)
     beam.Parent = part
 
     RunService.RenderStepped:Connect(function()
-        beam.CurveSize0 = math.sin(tick()) * 50
-        beam.CurveSize1 = math.cos(tick()) * 50
+        local t = tick()
+        beam.CurveSize0 = math.sin(t*0.8)*80
+        beam.CurveSize1 = math.cos(t*0.6)*80
+        beam.LightEmission = 0.8 + math.sin(t*1.2)*0.2
     end)
 end
 
 ------------------------------------------------
--- 🕳️ AGUJERO NEGRO
+-- 🕳️ AGUJERO NEGRO VIVO
 ------------------------------------------------
 local function CreateBlackHole()
 
@@ -103,63 +108,35 @@ local function CreateBlackHole()
     core.Shape = Enum.PartType.Ball
     core.Material = Enum.Material.Neon
     core.Color = Color3.fromRGB(0,0,0)
-    core.Size = Vector3.new(50,50,50)
-    core.Position = Vector3.new(0,200,-200)
+    core.Size = Vector3.new(60,60,60)
+    core.Position = Vector3.new(0,250,-250)
     core.Parent = workspace
 
-    local ring = Instance.new("ParticleEmitter")
-    ring.Texture = "rbxassetid://258128463"
-    ring.Rate = 200
-    ring.Lifetime = NumberRange.new(2)
-    ring.Speed = NumberRange.new(0)
-    ring.RotSpeed = NumberRange.new(200)
-    ring.Size = NumberSequence.new{
-        NumberSequenceKeypoint.new(0,10),
-        NumberSequenceKeypoint.new(1,0)
-    }
-    ring.Color = ColorSequence.new(Color3.fromRGB(120,0,255))
-    ring.Parent = core
-
     RunService.RenderStepped:Connect(function()
+        local t = tick()
         core.CFrame = core.CFrame * CFrame.Angles(0,0.01,0)
+        local s = 60 + math.sin(t*2)*5
+        core.Size = Vector3.new(s,s,s)
     end)
 end
 
 ------------------------------------------------
--- 🌌 LOADING CINEMÁTICO
+-- 🌌 SKY MOVIMIENTO
 ------------------------------------------------
-local function ShowLoadingScreen()
+local function CreateSky()
 
-    local gui = Instance.new("ScreenGui")
-    gui.Name = "LEGNA_LOADING"
-    gui.IgnoreGuiInset = true
-    gui.Parent = game.CoreGui
+    local sky = Instance.new("Sky")
+    sky.SkyboxBk = "rbxassetid://159454299"
+    sky.SkyboxDn = "rbxassetid://159454299"
+    sky.SkyboxFt = "rbxassetid://159454299"
+    sky.SkyboxLf = "rbxassetid://159454299"
+    sky.SkyboxRt = "rbxassetid://159454299"
+    sky.SkyboxUp = "rbxassetid://159454299"
+    sky.StarCount = 4000
+    sky.Parent = Lighting
 
-    local frame = Instance.new("Frame", gui)
-    frame.Size = UDim2.new(1,0,1,0)
-    frame.BackgroundColor3 = Color3.fromRGB(5,0,15)
-    frame.BackgroundTransparency = 1
-
-    TweenService:Create(frame, TweenInfo.new(0.5), {
-        BackgroundTransparency = 0
-    }):Play()
-
-    local text = Instance.new("TextLabel", frame)
-    text.Size = UDim2.new(1,0,0,100)
-    text.Position = UDim2.new(0,0,0.4,0)
-    text.BackgroundTransparency = 1
-    text.Text = "LEGNA BOOST INITIALIZING"
-    text.TextColor3 = Color3.fromRGB(255,255,255)
-    text.TextScaled = true
-    text.Font = Enum.Font.GothamBold
-    text.TextTransparency = 1
-
-    TweenService:Create(text, TweenInfo.new(0.5), {
-        TextTransparency = 0
-    }):Play()
-
-    task.delay(2.2, function()
-        gui:Destroy()
+    RunService.RenderStepped:Connect(function()
+        Lighting.ClockTime = 14 + math.sin(tick()*0.03)*0.4
     end)
 end
 
@@ -167,8 +144,6 @@ end
 -- 🚀 BOOST ULTRA LOW (OPTIMIZADO REAL)
 ------------------------------------------------
 local function BoostUltra()
-
-    local loading = ShowLoadingScreen()
 
     pcall(function()
         settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
@@ -180,36 +155,24 @@ local function BoostUltra()
     Lighting.EnvironmentDiffuseScale = 0
     Lighting.EnvironmentSpecularScale = 0
 
-    task.spawn(function()
-        for _, v in ipairs(game:GetDescendants()) do
-
-            if v:IsA("ParticleEmitter") then
-                v.Enabled = false
-                v.Rate = 0
-
-            elseif v:IsA("Trail") then
-                v.Enabled = false
-
-            elseif v:IsA("Smoke") or v:IsA("Fire") then
-                v.Enabled = false
-
-            elseif v:IsA("PostEffect") then
-                v.Enabled = false
-
-            elseif v:IsA("Decal") or v:IsA("Texture") then
-                v.Transparency = 1
-            end
-
-            task.wait()
+    for _, v in ipairs(game:GetDescendants()) do
+        if v:IsA("ParticleEmitter") then
+            v.Enabled = false
+        elseif v:IsA("Trail") then
+            v.Enabled = false
+        elseif v:IsA("Smoke") or v:IsA("Fire") then
+            v.Enabled = false
+        elseif v:IsA("PostEffect") then
+            v.Enabled = false
+        elseif v:IsA("Decal") or v:IsA("Texture") then
+            v.Transparency = 1
         end
-    end)
-
-    task.wait(1)
-    if loading then loading:Destroy() end
+        task.wait()
+    end
 end
 
 ------------------------------------------------
--- 🎯 GUI HUD
+-- 🎯 HUD
 ------------------------------------------------
 local gui = Instance.new("ScreenGui", game.CoreGui)
 gui.Name = "LEGNA_PREMIUM"
@@ -222,10 +185,6 @@ frame.BackgroundColor3 = Color3.fromRGB(10,10,10)
 frame.BorderSizePixel = 0
 
 Instance.new("UICorner", frame).CornerRadius = UDim.new(0,6)
-
-local stroke = Instance.new("UIStroke", frame)
-stroke.Thickness = 1
-stroke.Transparency = 0.6
 
 local text = Instance.new("TextLabel", frame)
 text.Size = UDim2.new(0.82,0,1,0)
@@ -250,7 +209,7 @@ toggle.MouseButton1Click:Connect(function()
 end)
 
 ------------------------------------------------
--- 📱 DRAG
+-- 📱 DRAG (TOUCH)
 ------------------------------------------------
 local dragging, dragInput, dragStart, startPos
 
@@ -276,7 +235,7 @@ UIS.InputChanged:Connect(function(input)
 end)
 
 ------------------------------------------------
--- 🌈 FPS COUNTER (EXACTO, SIN CAMBIOS)
+-- 🌈 FPS COUNTER (EXACTO ORIGINAL)
 ------------------------------------------------
 local hue = 0
 local fps = 0
@@ -305,25 +264,25 @@ hue = (hue + 0.008) % 1
 local rgb = Color3.fromHSV(hue,1,1)  
 
 text.RichText = true  
-text.Text =  
-    "<font color='rgb("..  
-    math.floor(rgb.R*255)..","..  
-    math.floor(rgb.G*255)..","..  
-    math.floor(rgb.B*255)..")'>L</font> "  
-    .."<font color='rgb(255,255,255)'>"..fps.." FPS</font> | "  
-    .."<font color='rgb("..  
-    math.floor(msColor.R*255)..","..  
-    math.floor(msColor.G*255)..","..  
-    math.floor(msColor.B*255)..")'>"  
-    ..ping.." MS</font>"
-
+text.Text =
+    "<font color='rgb("..
+    math.floor(rgb.R*255)..","..
+    math.floor(rgb.G*255)..","..
+    math.floor(rgb.B*255)..")'>L</font> "..
+    "<font color='rgb(255,255,255)'>"..fps.." FPS</font> | "..
+    "<font color='rgb("..
+    math.floor(msColor.R*255)..","..
+    math.floor(msColor.G*255)..","..
+    math.floor(msColor.B*255)..")'>"..
+    ping.." MS</font>"
 end)
 
 ------------------------------------------------
 -- 🚀 INIT
 ------------------------------------------------
-CreateSky()
+CreateShaders()
 CreateAurora()
 CreateBlackHole()
+CreateSky()
 
-print("😈 LEGNA PREMIUM FULL SYSTEM ACTIVADO")
+print("😈 LEGNA PREMIUM FULL SHADER ACTIVADO")
