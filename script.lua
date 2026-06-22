@@ -8,7 +8,7 @@ local SoundService = game:GetService("SoundService")
 local TweenService = game:GetService("TweenService")
 
 ----------------------------------------------------
--- 🔥 BOOST BASE (CLEAN STABLE)
+-- 🔥 BOOST BASE
 ----------------------------------------------------
 Lighting.GlobalShadows = false
 Lighting.FogEnd = 9e9
@@ -19,7 +19,7 @@ pcall(function()
 end)
 
 ----------------------------------------------------
--- 🌌 LOADING GALAXY (7s CLEAN FIXED)
+-- 🌌 GALAXY LOADING (VISIBLE FIX)
 ----------------------------------------------------
 local function ShowLoadingScreen()
 
@@ -33,13 +33,30 @@ local function ShowLoadingScreen()
     frame.BackgroundColor3 = Color3.fromRGB(5,0,15)
     frame.Parent = gui
 
+    -- 🌌 galaxia REAL visible
     local gradient = Instance.new("UIGradient")
     gradient.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(20,0,40)),
-        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0,15,80)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(80,0,120))
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(40,0,70)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0,20,120)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(120,0,180))
     }
+    gradient.Rotation = 0
     gradient.Parent = frame
+
+    -- 🌠 partículas falsas galaxia (ESTO ES LO QUE TE FALTABA)
+    for i = 1, 30 do
+        local star = Instance.new("Frame")
+        star.Size = UDim2.new(0, math.random(2,4), 0, math.random(2,4))
+        star.Position = UDim2.new(math.random(),0,math.random(),0)
+        star.BackgroundColor3 = Color3.fromRGB(255,255,255)
+        star.BackgroundTransparency = 0.6
+        star.BorderSizePixel = 0
+        star.Parent = frame
+
+        local c = Instance.new("UICorner")
+        c.CornerRadius = UDim.new(1,0)
+        c.Parent = star
+    end
 
     local text = Instance.new("TextLabel")
     text.Size = UDim2.new(1,0,0,100)
@@ -61,6 +78,7 @@ local function ShowLoadingScreen()
     percent.TextScaled = true
     percent.Parent = frame
 
+    -- 🔊 sonido
     local sound = Instance.new("Sound")
     sound.SoundId = "rbxassetid://9118823100"
     sound.Volume = 1
@@ -70,13 +88,15 @@ local function ShowLoadingScreen()
 
     local running = true
 
+    -- 🌌 animación galaxia
     task.spawn(function()
         while running do
-            gradient.Rotation += 0.6
+            gradient.Rotation += 0.7
             task.wait(0.02)
         end
     end)
 
+    -- 📊 7 segundos exactos
     task.spawn(function()
         for i = 0, 100 do
             percent.Text = i .. "%"
@@ -90,13 +110,11 @@ local function ShowLoadingScreen()
 end
 
 ----------------------------------------------------
--- 🚀 BOOST ULTRA STABLE (NO BUG MAP)
+-- 🚀 BOOSTER ORIGINAL (REPARADO)
 ----------------------------------------------------
 local function BoostUltra()
 
-    local desc = workspace:GetDescendants()
-
-    for i, v in ipairs(desc) do
+    for _, v in ipairs(workspace:GetDescendants()) do
 
         if v:IsA("ParticleEmitter") then
             v.Rate = 0
@@ -108,17 +126,13 @@ local function BoostUltra()
             v.Enabled = false
 
         elseif v:IsA("Decal") or v:IsA("Texture") then
-            v.Transparency = math.clamp(v.Transparency + 0.5, 0, 1)
-        end
-
-        if i % 120 == 0 then
-            task.wait()
+            v.Transparency = 0.7
         end
     end
 end
 
 ----------------------------------------------------
--- 🎮 HUD
+-- 🎮 HUD MOVIBLE + FPS ORIGINAL
 ----------------------------------------------------
 local gui = Instance.new("ScreenGui", game.CoreGui)
 gui.Name = "LEGNA_PREMIUM"
@@ -139,7 +153,37 @@ text.TextScaled = true
 text.TextColor3 = Color3.fromRGB(255,255,255)
 
 ----------------------------------------------------
--- 📊 FPS COUNTER FIXED
+-- 🖱 DRAG FIX REAL
+----------------------------------------------------
+local dragging = false
+local dragStart, startPos
+
+frame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = frame.Position
+    end
+end)
+
+frame.InputEnded:Connect(function()
+    dragging = false
+end)
+
+UIS.InputChanged:Connect(function(input)
+    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - dragStart
+        frame.Position = UDim2.new(
+            startPos.X.Scale,
+            startPos.X.Offset + delta.X,
+            startPos.Y.Scale,
+            startPos.Y.Offset + delta.Y
+        )
+    end
+end)
+
+----------------------------------------------------
+-- 📊 FPS REAL
 ----------------------------------------------------
 local fps, frames, last = 0, 0, tick()
 
@@ -157,22 +201,17 @@ RunService.RenderStepped:Connect(function()
 end)
 
 ----------------------------------------------------
--- 🔘 TOGGLE
+-- 🔘 BOTÓN
 ----------------------------------------------------
-local enabled = false
-
 local toggle = Instance.new("TextButton", gui)
 toggle.Size = UDim2.new(0,140,0,25)
 toggle.Position = UDim2.new(0,10,0,110)
 toggle.Text = "ACTIVAR BOOST"
 
 toggle.MouseButton1Click:Connect(function()
-    enabled = not enabled
-
     ShowLoadingScreen()
     task.wait(7)
-
     BoostUltra()
 end)
 
-print("😈 LEGNA PREMIUM READY")
+print("😈 LEGNA FIXED PREMIUM READY")
