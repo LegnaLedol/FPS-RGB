@@ -15,23 +15,84 @@ pcall(function()
     settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
 end)
 
--- 🚀 BOOST ULTRA COMPETITIVO (ULTRA CLEAN STABLE)
+-- 🌌 GALAXY LOADING SCREEN (CINEMATIC PRO)
+local function ShowLoadingScreen()
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "LEGNA_LOADING"
+    gui.IgnoreGuiInset = true
+    gui.ResetOnSpawn = false
+    gui.Parent = game.CoreGui
+
+    local frame = Instance.new("Frame")
+    frame.Size = UDim2.new(1,0,1,0)
+    frame.BackgroundColor3 = Color3.fromRGB(5, 0, 15)
+    frame.BorderSizePixel = 0
+    frame.Parent = gui
+
+    local gradient = Instance.new("UIGradient")
+    gradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(10, 0, 30)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 15, 40)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(40, 0, 60))
+    }
+    gradient.Rotation = 0
+    gradient.Parent = frame
+
+    local text = Instance.new("TextLabel")
+    text.Size = UDim2.new(1,0,0,80)
+    text.Position = UDim2.new(0,0,0.45,0)
+    text.BackgroundTransparency = 1
+    text.Text = "INITIALIZING LEGNA BOOST"
+    text.TextColor3 = Color3.fromRGB(255,255,255)
+    text.Font = Enum.Font.GothamBold
+    text.TextScaled = true
+    text.Parent = frame
+
+    local stroke = Instance.new("UIStroke")
+    stroke.Color = Color3.fromRGB(140, 90, 255)
+    stroke.Thickness = 1.5
+    stroke.Transparency = 0.35
+    stroke.Parent = text
+
+    -- 🌌 animación suave galaxia
+    task.spawn(function()
+        while gui.Parent do
+            gradient.Rotation += 0.4
+            task.wait(0.03)
+        end
+    end)
+
+    -- ✨ sonido sci-fi
+    local sound = Instance.new("Sound")
+    sound.SoundId = "rbxassetid://911342077"
+    sound.Volume = 1
+    sound.PlaybackSpeed = 1.05
+    sound.Parent = SoundService
+    sound:Play()
+
+    task.delay(2, function()
+        sound:Destroy()
+    end)
+
+    return gui
+end
+
+-- 🚀 BOOST ULTRA COMPETITIVO (CLEAN + VISIBILIDAD)
 local function BoostUltra()
+    local loading = ShowLoadingScreen()
+
     local desc = game:GetDescendants()
 
     for i, v in ipairs(desc) do
 
-        -- 🧱 geometría optimizada
         if v:IsA("Part") or v:IsA("MeshPart") then
             v.Material = Enum.Material.SmoothPlastic
             v.Reflectance = 0
             v.CastShadow = false
 
-        -- 🖼️ texturas ligeras (sin destruir)
         elseif v:IsA("Decal") or v:IsA("Texture") then
             v.Transparency = 0.8
 
-        -- 🌫️ efectos OFF
         elseif v:IsA("ParticleEmitter") then
             v.Rate = 0
             v.Enabled = false
@@ -46,23 +107,20 @@ local function BoostUltra()
             v.Enabled = false
         end
 
-        -- 🧠 anti freeze
         if i % 100 == 0 then
             task.wait()
         end
     end
 
-    -- 🔊 SONIDO TURBO
-    local sound = Instance.new("Sound")
-    sound.SoundId = "rbxassetid://911342077"
-    sound.Volume = 1
-    sound.PlaybackSpeed = 1.05
-    sound.Parent = SoundService
-    sound:Play()
+    -- 🌍 LIGHTING COMPETITIVO
+    Lighting.GlobalShadows = false
+    Lighting.FogEnd = 1e9
+    Lighting.Brightness = 1.1
+    Lighting.EnvironmentDiffuseScale = 0
+    Lighting.EnvironmentSpecularScale = 0
 
-    task.delay(2, function()
-        sound:Destroy()
-    end)
+    task.wait(0.5)
+    loading:Destroy()
 end
 
 -- 🎯 GUI
@@ -111,9 +169,8 @@ toggle.MouseButton1Click:Connect(function()
     end
 end)
 
--- 📱 DRAG SOLO EN FRAME (FIX BUG)
-local dragging = false
-local dragInput, dragStart, startPos
+-- 📱 DRAG
+local dragging, dragInput, dragStart, startPos
 
 frame.InputBegan:Connect(function(input)
     if input.UserInputType == Enum.UserInputType.Touch then
@@ -142,7 +199,7 @@ UIS.InputChanged:Connect(function(input)
     end
 end)
 
--- 🌈 RGB + FPS
+-- 🌈 FPS + PING HUD
 local hue = 0
 local fps = 0
 local frames = 0
