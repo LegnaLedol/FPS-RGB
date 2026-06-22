@@ -1,7 +1,8 @@
 local Lighting = game:GetService("Lighting")
 local Workspace = game:GetService("Workspace")
+local RunService = game:GetService("RunService")
 
--- LIMPIAR EFECTOS
+-- LIMPIAR TODO
 for _, v in pairs(Lighting:GetChildren()) do
     if v:IsA("Atmosphere")
     or v:IsA("BloomEffect")
@@ -12,77 +13,88 @@ for _, v in pairs(Lighting:GetChildren()) do
     end
 end
 
--- 🌅 BASE ATARDECER APOCALIPSIS
-Lighting.ClockTime = 18.4
-Lighting.Brightness = 2.5
+-- 🌅 BASE HDR SUAVE
+Lighting.ClockTime = 18.1
+Lighting.Brightness = 1.8
 Lighting.GlobalShadows = true
-
-Lighting.Ambient = Color3.fromRGB(120, 110, 100)
-Lighting.OutdoorAmbient = Color3.fromRGB(150, 130, 110)
-
 Lighting.EnvironmentDiffuseScale = 1
 Lighting.EnvironmentSpecularScale = 1
 
--- 🌫 ATMOSPHERE (CELESTIAL SUAVE)
+Lighting.Ambient = Color3.fromRGB(90, 85, 80)
+Lighting.OutdoorAmbient = Color3.fromRGB(130, 110, 100)
+
+-- 🌫 ATMOSPHERE PROFUNDA (CLAVE REALISMO)
 local atm = Instance.new("Atmosphere")
-atm.Density = 0.28
+atm.Density = 0.45
 atm.Offset = 0
-atm.Color = Color3.fromRGB(255, 220, 200) -- tono atardecer
-atm.Decay = Color3.fromRGB(180, 150, 140)
-atm.Glare = 0.3
-atm.Haze = 1
+atm.Color = Color3.fromRGB(255, 190, 150)
+atm.Decay = Color3.fromRGB(120, 90, 80)
+atm.Glare = 0.35
+atm.Haze = 2
 atm.Parent = Lighting
 
--- ☀️ SUN RAYS (RAYOS REALES)
+-- ☀️ RAYOS MÁS NATURALES
 local sun = Instance.new("SunRaysEffect")
-sun.Intensity = 0.3 -- visible pero no cegador
-sun.Spread = 0.85
+sun.Intensity = 0.18
+sun.Spread = 0.95
 sun.Parent = Lighting
 
--- ✨ BLOOM (BRILLO DEL SOL)
+-- ✨ BLOOM CONTROLADO (ANTI CEGUERA)
 local bloom = Instance.new("BloomEffect")
-bloom.Intensity = 0.25
-bloom.Size = 35
-bloom.Threshold = 0.9
+bloom.Intensity = 0.12
+bloom.Size = 40
+bloom.Threshold = 1.3
 bloom.Parent = Lighting
 
--- 🎨 COLOR CINEMÁTICO
+-- 🎨 COLOR HDR FAKE
 local cc = Instance.new("ColorCorrectionEffect")
-cc.Brightness = 0.05
-cc.Contrast = 0.25
-cc.Saturation = 0.1
-cc.TintColor = Color3.fromRGB(255, 235, 220)
+cc.Brightness = 0.02
+cc.Contrast = 0.4
+cc.Saturation = 0.2
+cc.TintColor = Color3.fromRGB(255, 210, 180)
 cc.Parent = Lighting
 
--- ☁️ CREAR NUBES
-local function crearNube(pos, size)
-    local nube = Instance.new("Part")
-    nube.Anchored = true
-    nube.CanCollide = false
-    nube.Material = Enum.Material.SmoothPlastic
-    nube.Color = Color3.fromRGB(255,255,255)
-    nube.Transparency = 0.35
-    nube.Size = size
-    nube.Position = pos
-    nube.Parent = Workspace
+-- ☁️ NUBES ULTRA (MULTICAPA + MOVIMIENTO)
+local clouds = {}
 
-    local mesh = Instance.new("SpecialMesh", nube)
-    mesh.MeshType = Enum.MeshType.Sphere
-    mesh.Scale = Vector3.new(1,0.5,1)
+local function crearNube(pos)
+    local grupo = {}
+
+    for i = 1, 4 do
+        local nube = Instance.new("Part")
+        nube.Anchored = true
+        nube.CanCollide = false
+        nube.Material = Enum.Material.SmoothPlastic
+        nube.Color = Color3.fromRGB(255,255,255)
+        nube.Transparency = 0.45 + (i * 0.08)
+        nube.Size = Vector3.new(120,40,120) + Vector3.new(i*20,0,i*20)
+        nube.Position = pos + Vector3.new(i*6, i*3, i*6)
+        nube.Parent = Workspace
+
+        local mesh = Instance.new("SpecialMesh", nube)
+        mesh.MeshType = Enum.MeshType.Sphere
+        mesh.Scale = Vector3.new(1,0.5,1)
+
+        table.insert(grupo, nube)
+    end
+
+    table.insert(clouds, grupo)
 end
 
--- GENERAR NUBES GRANDES (DRAMÁTICAS)
-for i = 1, 15 do
-    crearNube(
-        Vector3.new(
-            math.random(-400,400),
-            math.random(140,200),
-            math.random(-400,400)
-        ),
-        Vector3.new(
-            math.random(60,120),
-            math.random(20,40),
-            math.random(60,120)
-        )
-    )
+-- GENERAR MUCHAS NUBES (PROFUNDIDAD REAL)
+for i = 1, 22 do
+    crearNube(Vector3.new(
+        math.random(-600,600),
+        math.random(150,260),
+        math.random(-600,600)
+    ))
 end
+
+-- 🌬 MOVIMIENTO LENTO (REALISMO)
+RunService.RenderStepped:Connect(function(dt)
+    for _, grupo in pairs(clouds) do
+        for _, nube in pairs(grupo) do
+            nube.Position += Vector3.new(0.2 * dt * 60, 0, 0.1 * dt * 60)
+        end
+    end
+end)
