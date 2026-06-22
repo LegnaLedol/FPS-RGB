@@ -1,55 +1,79 @@
 local Lighting = game:GetService("Lighting")
+local Workspace = game:GetService("Workspace")
 
--- LIMPIEZA TOTAL
-Lighting:ClearAllChildren()
+-- LIMPIAR EFECTOS
+for _, v in pairs(Lighting:GetChildren()) do
+    if v:IsA("Atmosphere")
+    or v:IsA("BloomEffect")
+    or v:IsA("ColorCorrectionEffect")
+    or v:IsA("SunRaysEffect")
+    or v:IsA("Sky") then
+        v:Destroy()
+    end
+end
 
--- BASE
-Lighting.ClockTime = 18.6
-Lighting.Brightness = 2.5
+-- 🌑 BASE PRO
+Lighting.ClockTime = 17.8
+Lighting.Brightness = 4
 Lighting.GlobalShadows = true
+
+-- 💡 FAKE GLOBAL ILLUMINATION (REBOTE DE LUZ)
+Lighting.Ambient = Color3.fromRGB(120, 120, 130)
+Lighting.OutdoorAmbient = Color3.fromRGB(170, 170, 180)
+
 Lighting.EnvironmentDiffuseScale = 1
 Lighting.EnvironmentSpecularScale = 1
 
-Lighting.Ambient = Color3.fromRGB(60, 60, 70)
-Lighting.OutdoorAmbient = Color3.fromRGB(90, 90, 100)
-
--- 🌫 ATMOSPHERE (PROFUNDO Y LIMPIO)
+-- 🌫 ATMOSPHERE DIVINO
 local atm = Instance.new("Atmosphere")
-atm.Density = 0.4
+atm.Density = 0.35
 atm.Offset = 0
-atm.Color = Color3.fromRGB(210, 210, 220) -- gris claro limpio
-atm.Decay = Color3.fromRGB(80, 80, 90) -- profundidad oscura
-atm.Glare = 0.35
-atm.Haze = 3
+atm.Color = Color3.fromRGB(255, 255, 255)
+atm.Decay = Color3.fromRGB(120, 120, 130)
+atm.Glare = 0.6
+atm.Haze = 1.2
 atm.Parent = Lighting
 
--- ☀️ SUN RAYS (FUERTES COMO PSHADE)
+-- ☀️ RAYOS DE DIOS
 local sun = Instance.new("SunRaysEffect")
-sun.Intensity = 0.35
-sun.Spread = 0.9
+sun.Intensity = 0.75
+sun.Spread = 1
 sun.Parent = Lighting
 
--- ✨ BLOOM (GLOW PRO)
+-- ✨ BLOOM PRO (GLOW REALISTA)
 local bloom = Instance.new("BloomEffect")
-bloom.Intensity = 0.35
-bloom.Size = 40
-bloom.Threshold = 0.85
+bloom.Intensity = 0.6
+bloom.Size = 60
+bloom.Threshold = 0.7
 bloom.Parent = Lighting
 
--- 🎨 COLOR CORRECTION (CLAVE DEL LOOK)
+-- 🎨 COLOR CINEMÁTICO
 local cc = Instance.new("ColorCorrectionEffect")
-cc.Brightness = -0.08
-cc.Contrast = 0.35 -- 🔥 esto da el look Pshade
-cc.Saturation = -0.1
-cc.TintColor = Color3.fromRGB(235, 235, 245)
+cc.Brightness = 0.1
+cc.Contrast = 0.45
+cc.Saturation = 0.1
+cc.TintColor = Color3.fromRGB(255, 255, 255)
 cc.Parent = Lighting
 
--- ☁️ SKY (NUBES DRAMÁTICAS)
+-- ☁️ SKY DRAMÁTICO
 local sky = Instance.new("Sky")
-sky.SkyboxBk = "rbxassetid://159454299"
-sky.SkyboxDn = "rbxassetid://159454296"
-sky.SkyboxFt = "rbxassetid://159454293"
-sky.SkyboxLf = "rbxassetid://159454286"
-sky.SkyboxRt = "rbxassetid://159454300"
-sky.SkyboxUp = "rbxassetid://159454288"
+sky.SkyboxBk = "rbxassetid://6444884337"
+sky.SkyboxDn = "rbxassetid://6444884785"
+sky.SkyboxFt = "rbxassetid://6444884337"
+sky.SkyboxLf = "rbxassetid://6444884337"
+sky.SkyboxRt = "rbxassetid://6444884337"
+sky.SkyboxUp = "rbxassetid://6444884337"
 sky.Parent = Lighting
+
+-- 🌊 REFLEJO FAKE (PISO MOJADO PRO)
+for _, part in pairs(Workspace:GetDescendants()) do
+    if part:IsA("BasePart") then
+        part.Material = Enum.Material.SmoothPlastic
+        
+        -- 🔥 reflectancia = espejo falso
+        part.Reflectance = 0.15
+        
+        -- 🔥 un poco más oscuro para contraste
+        part.Color = part.Color:lerp(Color3.fromRGB(180,180,180), 0.1)
+    end
+end
