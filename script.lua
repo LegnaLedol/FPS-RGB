@@ -7,9 +7,9 @@ local UIS = game:GetService("UserInputService")
 local SoundService = game:GetService("SoundService")
 local TweenService = game:GetService("TweenService")
 
-----------------------------------------------------
--- 🔥 BOOST BASE
-----------------------------------------------------
+------------------------------------------------
+-- ⚡ BOOST BASE (inicio suave)
+------------------------------------------------
 Lighting.GlobalShadows = false
 Lighting.FogEnd = 9e9
 Lighting.Brightness = 0
@@ -18,9 +18,116 @@ pcall(function()
     settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
 end)
 
-----------------------------------------------------
--- 🌌 GALAXY LOADING (VISIBLE FIX)
-----------------------------------------------------
+------------------------------------------------
+-- 🌌 SKY PREMIUM (AURORA + GALAXIA + ATMOSPHERE)
+------------------------------------------------
+local function CreateSky()
+
+    local atm = Instance.new("Atmosphere")
+    atm.Density = 0.35
+    atm.Color = Color3.fromRGB(120,180,255)
+    atm.Decay = Color3.fromRGB(60,60,120)
+    atm.Glare = 0.6
+    atm.Haze = 1
+    atm.Parent = Lighting
+
+    local cc = Instance.new("ColorCorrectionEffect")
+    cc.Contrast = 0.25
+    cc.Saturation = 0.4
+    cc.TintColor = Color3.fromRGB(180,200,255)
+    cc.Parent = Lighting
+
+    local bloom = Instance.new("BloomEffect")
+    bloom.Intensity = 1.2
+    bloom.Size = 56
+    bloom.Threshold = 0.8
+    bloom.Parent = Lighting
+
+    local sky = Instance.new("Sky")
+    sky.SkyboxBk = "rbxassetid://159454299"
+    sky.SkyboxDn = "rbxassetid://159454299"
+    sky.SkyboxFt = "rbxassetid://159454299"
+    sky.SkyboxLf = "rbxassetid://159454299"
+    sky.SkyboxRt = "rbxassetid://159454299"
+    sky.SkyboxUp = "rbxassetid://159454299"
+    sky.StarCount = 5000
+    sky.Parent = Lighting
+end
+
+------------------------------------------------
+-- 🌈 AURORA BOREAL
+------------------------------------------------
+local function CreateAurora()
+
+    local part = Instance.new("Part")
+    part.Anchored = true
+    part.CanCollide = false
+    part.Transparency = 1
+    part.Size = Vector3.new(1000,1,1000)
+    part.Position = Vector3.new(0,300,0)
+    part.Parent = workspace
+
+    local beam = Instance.new("Beam")
+    local a0 = Instance.new("Attachment", part)
+    local a1 = Instance.new("Attachment", part)
+
+    a0.Position = Vector3.new(-500,0,0)
+    a1.Position = Vector3.new(500,0,0)
+
+    beam.Attachment0 = a0
+    beam.Attachment1 = a1
+    beam.Width0 = 80
+    beam.Width1 = 120
+    beam.LightEmission = 1
+    beam.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(0,255,180)),
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(120,0,255)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(0,150,255))
+    }
+    beam.Transparency = NumberSequence.new(0.3)
+    beam.Parent = part
+
+    RunService.RenderStepped:Connect(function()
+        beam.CurveSize0 = math.sin(tick()) * 50
+        beam.CurveSize1 = math.cos(tick()) * 50
+    end)
+end
+
+------------------------------------------------
+-- 🕳️ AGUJERO NEGRO
+------------------------------------------------
+local function CreateBlackHole()
+
+    local core = Instance.new("Part")
+    core.Anchored = true
+    core.Shape = Enum.PartType.Ball
+    core.Material = Enum.Material.Neon
+    core.Color = Color3.fromRGB(0,0,0)
+    core.Size = Vector3.new(50,50,50)
+    core.Position = Vector3.new(0,200,-200)
+    core.Parent = workspace
+
+    local ring = Instance.new("ParticleEmitter")
+    ring.Texture = "rbxassetid://258128463"
+    ring.Rate = 200
+    ring.Lifetime = NumberRange.new(2)
+    ring.Speed = NumberRange.new(0)
+    ring.RotSpeed = NumberRange.new(200)
+    ring.Size = NumberSequence.new{
+        NumberSequenceKeypoint.new(0,10),
+        NumberSequenceKeypoint.new(1,0)
+    }
+    ring.Color = ColorSequence.new(Color3.fromRGB(120,0,255))
+    ring.Parent = core
+
+    RunService.RenderStepped:Connect(function()
+        core.CFrame = core.CFrame * CFrame.Angles(0,0.01,0)
+    end)
+end
+
+------------------------------------------------
+-- 🌌 LOADING CINEMÁTICO
+------------------------------------------------
 local function ShowLoadingScreen()
 
     local gui = Instance.new("ScreenGui")
@@ -28,150 +135,136 @@ local function ShowLoadingScreen()
     gui.IgnoreGuiInset = true
     gui.Parent = game.CoreGui
 
-    local frame = Instance.new("Frame")
+    local frame = Instance.new("Frame", gui)
     frame.Size = UDim2.new(1,0,1,0)
     frame.BackgroundColor3 = Color3.fromRGB(5,0,15)
-    frame.Parent = gui
+    frame.BackgroundTransparency = 1
 
-    -- 🌌 galaxia REAL visible
-    local gradient = Instance.new("UIGradient")
-    gradient.Color = ColorSequence.new{
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(40,0,70)),
-        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0,20,120)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(120,0,180))
-    }
-    gradient.Rotation = 0
-    gradient.Parent = frame
+    TweenService:Create(frame, TweenInfo.new(0.5), {
+        BackgroundTransparency = 0
+    }):Play()
 
-    -- 🌠 partículas falsas galaxia (ESTO ES LO QUE TE FALTABA)
-    for i = 1, 30 do
-        local star = Instance.new("Frame")
-        star.Size = UDim2.new(0, math.random(2,4), 0, math.random(2,4))
-        star.Position = UDim2.new(math.random(),0,math.random(),0)
-        star.BackgroundColor3 = Color3.fromRGB(255,255,255)
-        star.BackgroundTransparency = 0.6
-        star.BorderSizePixel = 0
-        star.Parent = frame
-
-        local c = Instance.new("UICorner")
-        c.CornerRadius = UDim.new(1,0)
-        c.Parent = star
-    end
-
-    local text = Instance.new("TextLabel")
+    local text = Instance.new("TextLabel", frame)
     text.Size = UDim2.new(1,0,0,100)
     text.Position = UDim2.new(0,0,0.4,0)
     text.BackgroundTransparency = 1
     text.Text = "LEGNA BOOST INITIALIZING"
     text.TextColor3 = Color3.fromRGB(255,255,255)
-    text.Font = Enum.Font.GothamBold
     text.TextScaled = true
-    text.Parent = frame
+    text.Font = Enum.Font.GothamBold
+    text.TextTransparency = 1
 
-    local percent = Instance.new("TextLabel")
-    percent.Size = UDim2.new(1,0,0,60)
-    percent.Position = UDim2.new(0,0,0.5,0)
-    percent.BackgroundTransparency = 1
-    percent.Text = "0%"
-    percent.TextColor3 = Color3.fromRGB(180,140,255)
-    percent.Font = Enum.Font.GothamBlack
-    percent.TextScaled = true
-    percent.Parent = frame
+    TweenService:Create(text, TweenInfo.new(0.5), {
+        TextTransparency = 0
+    }):Play()
 
-    -- 🔊 sonido
-    local sound = Instance.new("Sound")
-    sound.SoundId = "rbxassetid://9118823100"
-    sound.Volume = 1
-    sound.Looped = true
-    sound.Parent = SoundService
-    sound:Play()
-
-    local running = true
-
-    -- 🌌 animación galaxia
-    task.spawn(function()
-        while running do
-            gradient.Rotation += 0.7
-            task.wait(0.02)
-        end
-    end)
-
-    -- 📊 7 segundos exactos
-    task.spawn(function()
-        for i = 0, 100 do
-            percent.Text = i .. "%"
-            task.wait(7/100)
-        end
-
-        running = false
-        sound:Stop()
+    task.delay(2.2, function()
         gui:Destroy()
     end)
 end
 
-----------------------------------------------------
--- 🚀 BOOSTER ORIGINAL (REPARADO)
-----------------------------------------------------
+------------------------------------------------
+-- 🚀 BOOST ULTRA LOW (OPTIMIZADO REAL)
+------------------------------------------------
 local function BoostUltra()
 
-    for _, v in ipairs(workspace:GetDescendants()) do
+    local loading = ShowLoadingScreen()
 
-        if v:IsA("ParticleEmitter") then
-            v.Rate = 0
+    pcall(function()
+        settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+    end)
 
-        elseif v:IsA("Trail") then
-            v.Enabled = false
+    Lighting.GlobalShadows = false
+    Lighting.FogEnd = 1e10
+    Lighting.Brightness = 1
+    Lighting.EnvironmentDiffuseScale = 0
+    Lighting.EnvironmentSpecularScale = 0
 
-        elseif v:IsA("Smoke") or v:IsA("Fire") then
-            v.Enabled = false
+    task.spawn(function()
+        for _, v in ipairs(game:GetDescendants()) do
 
-        elseif v:IsA("Decal") or v:IsA("Texture") then
-            v.Transparency = 0.7
+            if v:IsA("ParticleEmitter") then
+                v.Enabled = false
+                v.Rate = 0
+
+            elseif v:IsA("Trail") then
+                v.Enabled = false
+
+            elseif v:IsA("Smoke") or v:IsA("Fire") then
+                v.Enabled = false
+
+            elseif v:IsA("PostEffect") then
+                v.Enabled = false
+
+            elseif v:IsA("Decal") or v:IsA("Texture") then
+                v.Transparency = 1
+            end
+
+            task.wait()
         end
-    end
+    end)
+
+    task.wait(1)
+    if loading then loading:Destroy() end
 end
 
-----------------------------------------------------
--- 🎮 HUD MOVIBLE + FPS ORIGINAL
-----------------------------------------------------
+------------------------------------------------
+-- 🎯 GUI HUD
+------------------------------------------------
 local gui = Instance.new("ScreenGui", game.CoreGui)
 gui.Name = "LEGNA_PREMIUM"
 
 local frame = Instance.new("Frame", gui)
-frame.Size = UDim2.new(0, 140, 0, 25)
-frame.Position = UDim2.new(0, 10, 0, 80)
-frame.BackgroundColor3 = Color3.fromRGB(10,10,10)
+frame.Size = UDim2.new(0,125,0,20)
+frame.Position = UDim2.new(0,8,0,70)
 frame.BackgroundTransparency = 0.25
+frame.BackgroundColor3 = Color3.fromRGB(10,10,10)
+frame.BorderSizePixel = 0
 
-Instance.new("UICorner", frame)
+Instance.new("UICorner", frame).CornerRadius = UDim.new(0,6)
+
+local stroke = Instance.new("UIStroke", frame)
+stroke.Thickness = 1
+stroke.Transparency = 0.6
 
 local text = Instance.new("TextLabel", frame)
-text.Size = UDim2.new(1,0,1,0)
+text.Size = UDim2.new(0.82,0,1,0)
+text.Position = UDim2.new(0,6,0,0)
 text.BackgroundTransparency = 1
-text.Font = Enum.Font.GothamBold
 text.TextScaled = true
-text.TextColor3 = Color3.fromRGB(255,255,255)
+text.Font = Enum.Font.GothamSemibold
+text.TextXAlignment = Enum.TextXAlignment.Left
 
-----------------------------------------------------
--- 🖱 DRAG FIX REAL
-----------------------------------------------------
-local dragging = false
-local dragStart, startPos
+local toggle = Instance.new("TextButton", frame)
+toggle.Size = UDim2.new(0.18,0,1,0)
+toggle.Position = UDim2.new(0.82,0,0,0)
+toggle.BackgroundTransparency = 1
+toggle.Text = ""
+
+local enabled = true
+
+toggle.MouseButton1Click:Connect(function()
+    enabled = not enabled
+    text.Visible = enabled
+    if enabled then BoostUltra() end
+end)
+
+------------------------------------------------
+-- 📱 DRAG
+------------------------------------------------
+local dragging, dragInput, dragStart, startPos
 
 frame.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+    if input.UserInputType == Enum.UserInputType.Touch then
         dragging = true
         dragStart = input.Position
         startPos = frame.Position
+        dragInput = input
     end
 end)
 
-frame.InputEnded:Connect(function()
-    dragging = false
-end)
-
 UIS.InputChanged:Connect(function(input)
-    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+    if input == dragInput and dragging then
         local delta = input.Position - dragStart
         frame.Position = UDim2.new(
             startPos.X.Scale,
@@ -182,36 +275,55 @@ UIS.InputChanged:Connect(function(input)
     end
 end)
 
-----------------------------------------------------
--- 📊 FPS REAL
-----------------------------------------------------
-local fps, frames, last = 0, 0, tick()
+------------------------------------------------
+-- 🌈 FPS COUNTER (EXACTO, SIN CAMBIOS)
+------------------------------------------------
+local hue = 0
+local fps = 0
+local frames = 0
+local lastTime = tick()
 
 RunService.RenderStepped:Connect(function()
+frames += 1
 
-    frames += 1
+if tick() - lastTime >= 1 then  
+    fps = frames  
+    frames = 0  
+    lastTime = tick()  
+end  
 
-    if tick() - last >= 1 then
-        fps = frames
-        frames = 0
-        last = tick()
-    end
+local ping = math.floor(Stats.Network.ServerStatsItem["Data Ping"]:GetValue())  
 
-    text.Text = "FPS: " .. fps
+local msColor = Color3.fromRGB(0,255,120)  
+if ping > 180 then  
+    msColor = Color3.fromRGB(255,60,60)  
+elseif ping > 100 then  
+    msColor = Color3.fromRGB(255,170,60)  
+end  
+
+hue = (hue + 0.008) % 1  
+local rgb = Color3.fromHSV(hue,1,1)  
+
+text.RichText = true  
+text.Text =  
+    "<font color='rgb("..  
+    math.floor(rgb.R*255)..","..  
+    math.floor(rgb.G*255)..","..  
+    math.floor(rgb.B*255)..")'>L</font> "  
+    .."<font color='rgb(255,255,255)'>"..fps.." FPS</font> | "  
+    .."<font color='rgb("..  
+    math.floor(msColor.R*255)..","..  
+    math.floor(msColor.G*255)..","..  
+    math.floor(msColor.B*255)..")'>"  
+    ..ping.." MS</font>"
+
 end)
 
-----------------------------------------------------
--- 🔘 BOTÓN
-----------------------------------------------------
-local toggle = Instance.new("TextButton", gui)
-toggle.Size = UDim2.new(0,140,0,25)
-toggle.Position = UDim2.new(0,10,0,110)
-toggle.Text = "ACTIVAR BOOST"
+------------------------------------------------
+-- 🚀 INIT
+------------------------------------------------
+CreateSky()
+CreateAurora()
+CreateBlackHole()
 
-toggle.MouseButton1Click:Connect(function()
-    ShowLoadingScreen()
-    task.wait(7)
-    BoostUltra()
-end)
-
-print("😈 LEGNA FIXED PREMIUM READY")
+print("😈 LEGNA PREMIUM FULL SYSTEM ACTIVADO")
