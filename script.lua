@@ -10,32 +10,57 @@ local SoundService = game:GetService("SoundService")
 Lighting.GlobalShadows = false
 Lighting.FogEnd = 9e9
 Lighting.Brightness = 0
-settings().Rendering.QualityLevel = "Level01"
 
--- 🚀 BOOST ULTRA + SONIDO
+pcall(function()
+    settings().Rendering.QualityLevel = Enum.QualityLevel.Level01
+end)
+
+-- 🚀 BOOST ULTRA COMPETITIVO (ULTRA CLEAN STABLE)
 local function BoostUltra()
-    for _, v in pairs(game:GetDescendants()) do
+    local desc = game:GetDescendants()
+
+    for i, v in ipairs(desc) do
+
+        -- 🧱 geometría optimizada
         if v:IsA("Part") or v:IsA("MeshPart") then
             v.Material = Enum.Material.SmoothPlastic
             v.Reflectance = 0
+            v.CastShadow = false
+
+        -- 🖼️ texturas ligeras (sin destruir)
         elseif v:IsA("Decal") or v:IsA("Texture") then
-            v:Destroy()
-        elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
-            v:Destroy()
+            v.Transparency = 0.8
+
+        -- 🌫️ efectos OFF
+        elseif v:IsA("ParticleEmitter") then
+            v.Rate = 0
+            v.Enabled = false
+
+        elseif v:IsA("Trail") then
+            v.Enabled = false
+
         elseif v:IsA("Fire") or v:IsA("Smoke") then
-            v:Destroy()
+            v.Enabled = false
+
+        elseif v:IsA("Sparkles") then
+            v.Enabled = false
+        end
+
+        -- 🧠 anti freeze
+        if i % 100 == 0 then
+            task.wait()
         end
     end
 
     -- 🔊 SONIDO TURBO
     local sound = Instance.new("Sound")
     sound.SoundId = "rbxassetid://911342077"
-    sound.Volume = 1.5
+    sound.Volume = 1
     sound.PlaybackSpeed = 1.05
     sound.Parent = SoundService
     sound:Play()
 
-    task.delay(3, function()
+    task.delay(2, function()
         sound:Destroy()
     end)
 end
